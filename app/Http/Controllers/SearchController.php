@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\QueryGeneratorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class SearchController extends Controller
 {
@@ -18,6 +19,8 @@ class SearchController extends Controller
         $registeredResponse = Http::withHeaders($queryServiceGenerator->getHeaders())->post('https://tmsearch.uspto.gov/api/tmsearch', $queryServiceGenerator->simpleRegisteredQuery($searchTerm));
         $cancelledResponse = Http::withHeaders($queryServiceGenerator->getHeaders())->post('https://tmsearch.uspto.gov/api/tmsearch', $queryServiceGenerator->simpleCanceledQuery($searchTerm));
         $registeredArray = $registeredResponse->json();
+        Log::debug($registeredArray);
+
 
 
         $registeredTrademarks = $registeredArray['hits']['hits'];
