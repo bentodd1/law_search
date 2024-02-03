@@ -19,6 +19,7 @@ class SearchController extends Controller
         $cancelledResponse = Http::withHeaders($queryServiceGenerator->getHeaders())->post('https://tmsearch.uspto.gov/api/tmsearch', $queryServiceGenerator->simpleCanceledQuery($searchTerm));
         $registeredArray = $registeredResponse->json();
 
+
         $registeredTrademarks = $registeredArray['hits']['hits'];
         $cancelledTrademarks = $cancelledResponse->json()['hits']['hits'];
 
