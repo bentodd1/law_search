@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Services\QueryGeneratorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class SearchController extends Controller
 {
