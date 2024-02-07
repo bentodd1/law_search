@@ -29,7 +29,7 @@ class QueryGeneratorService
             'query' => [
                 'bool' => [
                     'must' => [
-                        'match_phrase' => ['WM' => $term]
+                        $this->getMachPart($term)
                     ],
                     'filter' => [
                         'term' => ['LD' => 'false'] // Assuming 'LD' indicates whether a trademark is live or not
@@ -68,7 +68,7 @@ class QueryGeneratorService
             'query' => [
                 'bool' => [
                     'must' => [
-                        'match_phrase' => ['WM' => $term]
+                        $this->getMachPart($term)
                     ],
                     'filter' => [
                         'term' => ['LD' => 'true'] // Assuming 'LD' is 'true' for cancelled trademarks
@@ -100,6 +100,21 @@ class QueryGeneratorService
                 "wordmark",
                 "wordmarkPseudoText"]
         ];
+    }
+
+    public function getMachPart($term): array {
+        if (strpos($term, ' ') !== false) {
+            // Use match_phrase for multi-word terms
+            return  [
+                'match_phrase' => ['WM' => $term]
+            ];
+        } else {
+            // Use match for single-word terms
+            return [
+                'wildcard' => ['WM' => '*' . $term . '*']
+            ];
+
+        }
     }
 
 }
