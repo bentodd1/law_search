@@ -4,7 +4,8 @@ namespace App\Services;
 
 class QueryGeneratorService
 {
-    public function getHeaders(): array {
+    public function getHeaders(): array
+    {
         return [
             'authority' => 'tmsearch.uspto.gov',
             'accept' => 'application/json, text/plain, */*',
@@ -19,7 +20,7 @@ class QueryGeneratorService
             'sec-fetch-mode' => 'cors',
             'sec-fetch-site' => 'same-origin',
             'user-agent' => 'Mozilla/5.0 (compatible; Monogram/1.0; https://monogramlegal.com/)'
-       //   'user-agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            //   'user-agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         ];
     }
 
@@ -63,7 +64,8 @@ class QueryGeneratorService
         ];
     }
 
-    public function simpleRegisteredQuery(string $term): array {
+    public function simpleRegisteredQuery(string $term): array
+    {
         return [
             'query' => [
                 'bool' => [
@@ -102,10 +104,11 @@ class QueryGeneratorService
         ];
     }
 
-    public function getMachPart($term): array {
+    public function getMachPart($term): array
+    {
         if (strpos($term, ' ') !== false) {
             // Use match_phrase for multi-word terms
-            return  [
+            return [
                 'match_phrase' => ['WM' => $term]
             ];
         } else {
