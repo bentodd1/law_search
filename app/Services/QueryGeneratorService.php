@@ -37,6 +37,7 @@ class QueryGeneratorService
                     ]
                 ]
             ],
+            "track_total_hits" => true,
             '_source' => [
                 "abandonDate",
                 "alive",
@@ -77,6 +78,7 @@ class QueryGeneratorService
                     ]
                 ]
             ],
+            "track_total_hits" => true,
             '_source' => [
                 "abandonDate",
                 "alive",

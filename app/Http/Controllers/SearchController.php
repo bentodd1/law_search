@@ -25,12 +25,14 @@ class SearchController extends Controller
         $registeredCount = $registeredArray['hits']['totalValue'];
         $cancelledCount = $cancelledResponse->json()['hits']['totalValue'];
         $percentage = ($registeredCount/($registeredCount + $cancelledCount)) * 100;
+        $cancelledPage = 1;
+        $cancelledHasMorePages = true;
 
         // Convert the response to JSON
         //$jsonResponse = json_encode($response->json(), JSON_PRETTY_PRINT);
 
         // Print the JSON in a <pre> tag for readability
-        return view('search', compact('registeredTrademarks', 'cancelledTrademarks', 'cancelledCount', 'registeredCount', 'percentage'));
+        return view('search', compact('registeredTrademarks', 'cancelledTrademarks', 'cancelledCount', 'registeredCount', 'percentage', 'cancelledPage', 'cancelledHasMorePages'));
 
     }
 }
