@@ -56,6 +56,7 @@
                 </tbody>
             </table>
             <div class="my-4">
+                <p class="text-lg font-semibold mb-2" >Page {{ $registeredPage }} of {{ ceil($registeredCount / 10) }}</p>
                 @if(isset($registeredPage) && $registeredPage > 1)
                     <a href="{{ url('/search?query=' . $query . '&registeredPage=' . ($registeredPage - 1)) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-l focus:outline-none focus:shadow-outline">Previous</a>
                 @endif
@@ -85,6 +86,8 @@
                 </tbody>
             </table>
             <div class="my-4">
+                <p class="text-lg font-semibold mb-2" >Page {{ $cancelledPage }} of {{ ceil($cancelledCount / 10) }}</p>
+
                 @if(isset($cancelledPage) && $cancelledPage > 1)
                     <a href="{{ url('/search?query=' . $query . '&cancelledPage=' . ($cancelledPage - 1)) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-l focus:outline-none focus:shadow-outline">Previous</a>
                 @endif
