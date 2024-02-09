@@ -55,6 +55,15 @@
                 @endforeach
                 </tbody>
             </table>
+            <div class="my-4">
+                @if(isset($registeredPage) && $registeredPage > 1)
+                    <a href="{{ url('/search?query=' . $query . '&registeredPage=' . ($registeredPage - 1)) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-l focus:outline-none focus:shadow-outline">Previous</a>
+                @endif
+
+                @if(isset($registeredPage) && $registeredHasMorePages)
+                    <a href="{{ url('/search?query=' . $query . '&registeredPage=' . ($registeredPage + 1)) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r focus:outline-none focus:shadow-outline">Next</a>
+                @endif
+            </div>
         </div>
 
         <div class="bg-white p-6 rounded shadow">
@@ -77,11 +86,11 @@
             </table>
             <div class="my-4">
                 @if(isset($cancelledPage) && $cancelledPage > 1)
-                    <a href="{{ url('/search/cancelled/' . ($cancelledPage - 1)) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-l focus:outline-none focus:shadow-outline">Previous</a>
+                    <a href="{{ url('/search?query=' . $query . '&cancelledPage=' . ($cancelledPage - 1)) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-l focus:outline-none focus:shadow-outline">Previous</a>
                 @endif
 
                 @if(isset($cancelledPage) && $cancelledHasMorePages)
-                    <a href="{{ url('/search/cancelled/' . ($cancelledPage + 1)) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r focus:outline-none focus:shadow-outline">Next</a>
+                    <a href="{{ url('/search?query=' . $query . '&cancelledPage=' . ($cancelledPage + 1)) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r focus:outline-none focus:shadow-outline">Next</a>
                 @endif
             </div>
         </div>
