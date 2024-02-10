@@ -43,6 +43,7 @@
                 <thead>
                 <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
                     <th class="py-3 px-6 text-left">Name</th>
+                    <th class="py-3 px-6 text-left">Disclaimer</th>
                     <th class="py-3 px-6 text-center">Details</th>
                 </tr>
                 </thead>
@@ -50,6 +51,7 @@
                 @foreach($registeredTrademarks as $trademark)
                     <tr class="border-b border-gray-200 hover:bg-gray-100">
                         <td class="py-3 px-6 text-left whitespace-nowrap">{{ $trademark['source']['wordmark'] }}</td>
+                        <td class="py-3 px-6 text-left whitespace-nowrap">{{ $trademark['disclaimer']}}</td>
                         <td class="py-3 px-6 text-center"><a href="https://tsdr.uspto.gov/#caseNumber={{ $trademark['source']['id'] }}&caseSearchType=US_APPLICATION&caseType=DEFAULT&searchType=statusSearch" class="text-blue-500 hover:text-blue-600" target="_blank">View Trademark</a></td>
                     </tr>
                 @endforeach

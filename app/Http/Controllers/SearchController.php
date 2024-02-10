@@ -25,6 +25,14 @@ class SearchController extends Controller
         $registeredArray = $registeredResponse->json();
         $cancelledArray = $cancelledResponse->json();
         $registeredTrademarks = $registeredArray['hits']['hits'];
+
+        foreach ($registeredTrademarks as &$registeredTrademark) {
+            $url = $queryServiceGenerator->createUrl($registeredTrademark['source']['id'] );
+            $htmlResponse = Http::withHeaders($queryServiceGenerator->getHeaders())->get($url)->body();
+            $disclaimer = $queryServiceGenerator->findDisclaimerFromUrl($htmlResponse);
+            $registeredTrademark['disclaimer'] = $disclaimer;
+        }
+
         $cancelledTrademarks = $cancelledArray['hits']['hits'];
 
 // Access the totalValue field
