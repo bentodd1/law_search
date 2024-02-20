@@ -18,6 +18,10 @@ Route::get('/', function () {
     return view('search');
 })->middleware(['auth', 'verified'])->name('search');
 
+Route::get('/search', function () {
+    return view('search');
+})->middleware(['auth', 'verified']);
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
