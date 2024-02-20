@@ -1,5 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
+<x-app-layout>
+<!--<!DOCTYPE html>
+<html lang="en"> -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -102,4 +103,5 @@
     @endif
 </div>
 </body>
-</html>
+<!--</html> -->
+</x-app-layout>
