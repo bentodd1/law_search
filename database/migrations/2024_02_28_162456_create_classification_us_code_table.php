@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('classification_us_code', function (Blueprint $table) {
+        Schema::create('classification_american_code', function (Blueprint $table) {
             $table->id();
             $table->foreignId('classification_id')->constrained()->onDelete('cascade');
-            $table->foreignId('us_code_id')->constrained()->onDelete('cascade');
+            $table->foreignId('american_code_id')->constrained()->onDelete('cascade');
             $table->timestamps();
 
             // Add a unique constraint
-            $table->unique(['classification_id', 'us_code_id']);
+            $table->unique(['classification_id', 'american_code_id']);
         });
     }
 
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('classification_us_code');
+        Schema::dropIfExists('classification_american_code');
     }
 };

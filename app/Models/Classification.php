@@ -18,9 +18,9 @@ class Classification extends Model
         return $this->belongsToMany(CaseFile::class, 'case_file_classification');
     }
 
-    public function usCodes()
+    public function americanCodes()
     {
-        return $this->belongsToMany(Classification::class, 'classification_us_code');
+        return $this->belongsToMany(AmericanCode::class, 'classification_american_code');
     }
 
 }

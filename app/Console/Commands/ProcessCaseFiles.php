@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\CaseFile;
 use App\Models\Classification;
-use App\Models\USCode;
+use App\Models\AmericanCode;
 use Illuminate\Console\Command;
 
 class ProcessCaseFiles extends Command
@@ -55,13 +55,13 @@ class ProcessCaseFiles extends Command
                 ]);
 
                 foreach ($classificationElement->{'us-code'} as $usCodeElement) {
-                    $usCode = USCode::firstOrCreate([
+                    $usCode = AmericanCode::firstOrCreate([
                         'code' => (string)$usCodeElement,
-                        'classification_id' => $classification->id
                         // ... other fields for USCode ...
                     ]);
                     $usCodeId = $usCode->id; // Make sure this is getting a valid 'id' value
-                    $classification->usCodes()->syncWithoutDetaching([$usCodeId]);
+                    echo $usCodeId;
+                    $classification->americanCodes()->syncWithoutDetaching([$classification->id, $usCode->id]);
                 }
 
                 // Associating Classification with CaseFile

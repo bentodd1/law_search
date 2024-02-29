@@ -5,10 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class USCode extends Model
+class AmericanCode extends Model
 {
-    protected $table = 'us_codes';
-
     use HasFactory;
     protected $fillable = [
         'code',
@@ -16,7 +14,7 @@ class USCode extends Model
 
     public function classifications()
     {
-        return $this->belongsToMany(Classification::class, 'classification_us_code');
+        return $this->belongsToMany(Classification::class, 'classification_american_code');
     }
 
 
