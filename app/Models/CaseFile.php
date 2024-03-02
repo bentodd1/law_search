@@ -29,4 +29,14 @@ class CaseFile extends Model
     {
         return $this->belongsToMany(Classification::class, 'case_file_classification');
     }
+
+    public function correspondent()
+    {
+        return $this->belongsTo(Correspondent::class);
+    }
+
+    public function caseFileOwners()
+    {
+        return $this->belongsToMany(CaseFileOwner::class, 'case_file_owner_case_file');
+    }
 }
