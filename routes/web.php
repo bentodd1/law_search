@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,12 @@ Route::get('/search', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
+// Other resource routes for Employee...
+Route::get('/employee-search', [EmployeeController::class, 'search'])->name('employee-search');
+
+Route::get('/employees/{employee}', [EmployeeController::class, 'show'])->name('employees.show');
 
 Route::get('/register', function () {
     return view('auth-register');

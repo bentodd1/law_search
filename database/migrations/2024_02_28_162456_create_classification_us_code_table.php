@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamps();
 
             // Add a unique constraint
-            $table->unique(['classification_id', 'american_code_id']);
+            $table->unique(['classification_id', 'american_code_id'], 'american_class_unique');
         });
     }
 

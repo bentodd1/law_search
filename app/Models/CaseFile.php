@@ -39,4 +39,9 @@ class CaseFile extends Model
     {
         return $this->belongsToMany(CaseFileOwner::class, 'case_file_owner_case_file');
     }
+
+    public function eventStatements()
+    {
+        return $this->hasMany(CaseFileEventStatement::class);
+    }
 }

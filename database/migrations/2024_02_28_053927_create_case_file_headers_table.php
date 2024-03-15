@@ -22,6 +22,7 @@ return new class extends Migration
             $table->date('published_for_opposition_date')->nullable();
             $table->string('attorney_docket_number')->nullable();
             $table->string('attorney_name')->nullable();
+            $table->foreignId('employee_id')->nullable()->constrained('employees')->onDelete('set null');
             // ... other fields
             $table->timestamps();
         });

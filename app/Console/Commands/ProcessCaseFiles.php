@@ -7,7 +7,9 @@ use App\Models\CaseFileOwner;
 use App\Models\Classification;
 use App\Models\AmericanCode;
 use App\Models\Correspondent;
+use App\Models\Employee;
 use App\Models\ScannedFile;
+use DateTime;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 
@@ -39,20 +41,32 @@ class ProcessCaseFiles extends Command
                     $caseFile = CaseFile::create([
                         'serial_number' => (string)$caseFileElement->{'serial-number'},
                         'registration_number' => (string)$caseFileElement->{'registration-number'},
-                        // ... other CaseFile fields ...
-                    ]);
+                        'transaction_date' =>  DateTime::createFromFormat('Ymd', (string)$caseFileElement->{'transaction-date'})->format('Y-m-d')
 
-                    $caseFile->header()->create([
-                        'filing_date' => (string)$caseFileElement->{'case-file-header'}->{'filing-date'},
+                    // ... other CaseFile fields ...
+                    ]);
+                    $employeeName = (string)$caseFileElement->{'case-file-header'}->{'employee-name'};
+                    $markDrawingCode = trim((string)$caseFileElement->{'mark-drawing-code'});
+                    $markDrawingCode = $markDrawingCode !== '' ? intval($markDrawingCode) : null;
+                    $caseFileHeader =$caseFile->header()->create([
+                        'filing_date' => $this->processDate((string)$caseFileElement->{'case-file-header'}->{'filing-date'}),
                         'status_code' => (string)$caseFileElement->{'case-file-header'}->{'status-code'},
-                        'status_date' => (string)$caseFileElement->{'case-file-header'}->{'status-date'},
+                        'status_date' => $this->processDate((string)$caseFileElement->{'case-file-header'}->{'status-date'}),
                         'mark_identification' => (string)$caseFileElement->{'case-file-header'}->{'mark-identification'},
-                        'mark_drawing_code' => (string)$caseFileElement->{'case-file-header'}->{'mark-drawing-code'},
-                        'published_for_opposition_date' => (string)$caseFileElement->{'case-file-header'}->{'published-for-opposition-date'},
+                        'mark_drawing_code' => $markDrawingCode,
+                        'published_for_opposition_date' => $this->processDate((string)$caseFileElement->{'case-file-header'}->{'published-for-opposition-date'}),
                         'attorney_docket_number' => (string)$caseFileElement->{'case-file-header'}->{'attorney-docket-number'},
                         'attorney_name' => (string)$caseFileElement->{'case-file-header'}->{'attorney-name'},
                         // ... other CaseFileHeader fields ...
                     ]);
+                    /** @var Employee|null $employee */
+                    $employee = null;
+                    if ($employeeName) {
+                        $employee = Employee::firstOrCreate(['name' => $employeeName]);
+                        $caseFileHeader->employee()->associate($employee);
+                        $caseFileHeader->save();
+
+                    }
                     $statements = $caseFileElement->{'case-file-statements'}->{'case-file-statement'};
                     if ($statements) {
                         foreach ($statements as $statementElement) {
@@ -84,41 +98,63 @@ class ProcessCaseFiles extends Command
                         }
                     }
                     $caseFileOwnersElement = $caseFileElement->{'case-file-owners'};
+                    if($caseFileOwnersElement) {
+                        foreach ($caseFileOwnersElement->{'case-file-owner'} as $ownerElement) {
+                            $caseFileOwnerData = [
+                                'entry_number' => (string)$ownerElement->{"entry-number"},
+                                'party_type' => (string)$ownerElement->{"party-type"},
+                                'country' => (string)$ownerElement->nationality->country,
+                                'legal_entity_type_code' => (string)$ownerElement->{"legal-entity-type-code"},
+                                'entity_statement' => (string)$ownerElement->{"entity-statement"},
+                                'party_name' => (string)$ownerElement->{"party-name"},
+                                'address_1' => (string)$ownerElement->{"address-1"},
+                                'city' => (string)$ownerElement->city,
+                                'postcode' => (string)$ownerElement->postcode,
 
-                    foreach ($caseFileOwnersElement->{'case-file-owner'} as $ownerElement) {
-                        $caseFileOwnerData = [
-                            'entry_number' => (string)$ownerElement->{"entry-number"},
-                            'party_type' => (string)$ownerElement->{"party-type"},
-                            'country' => (string)$ownerElement->nationality->country,
-                            'legal_entity_type_code' => (string)$ownerElement->{"legal-entity-type-code"},
-                            'entity_statement' => (string)$ownerElement->{"entity-statement"},
-                            'party_name' => (string)$ownerElement->{"party-name"},
-                            'address_1' => (string)$ownerElement->{"address-1"},
-                            'city' => (string)$ownerElement->city,
-                            'postcode' => (string)$ownerElement->postcode,
-                        ];
+                            ];
 
-                        $caseFileOwner = CaseFileOwner::updateOrCreate(
-                            ['entry_number' => $caseFileOwnerData['entry_number']],
-                            $caseFileOwnerData
-                        );
+                            $caseFileOwner = CaseFileOwner::updateOrCreate(
+                                ['party_name' => $caseFileOwnerData['party_name']],
+                                $caseFileOwnerData
+                            );
 
-                        // Sync without detaching to keep existing associations
-                        $caseFile->caseFileOwners()->syncWithoutDetaching([$caseFileOwner->id]);
+                            // Sync without detaching to keep existing associations
+                            $caseFile->caseFileOwners()->syncWithoutDetaching([$caseFileOwner->id]);
+                        }
                     }
 
 
-                    foreach ($xml->correspondent as $correspondentElement) {
+                    foreach ($caseFileElement->correspondent as $correspondentElement) {
                         $correspondentData = [
                             'name' => (string)$correspondentElement->{'address-1'},
-                            'address_2' => (string)$correspondentElement->{'address-2'},
-                            'address_3' => (string)$correspondentElement->{'address-3'},
-                            'address_4' => (string)$correspondentElement->{'address-4'},
+                            'address1' => (string)$correspondentElement->{'address-2'},
+                            'address2' => (string)$correspondentElement->{'address-3'},
+                            'address3' => (string)$correspondentElement->{'address-4'},
                         ];
 
-                        $correspondent = Correspondent::updateOrCreate(['name' => $correspondentData['address_1']], $correspondentData);
+                        $correspondent = Correspondent::updateOrCreate(['name' => $correspondentData['name']], $correspondentData);
+
+                        if($employee) {
+                            if ($employee->name == $correspondent->name) {
+                                $employee->correspondent()->associate($correspondent);
+                                $employee->save();
+                            }
+                        }
                         $caseFile->correspondent()->associate($correspondent);
                         $caseFile->save();
+                    }
+                    $caseFileEventStatement = $caseFileElement->{'case-file-event-statements'}->{'case-file-event-statement'};
+                    if($caseFileEventStatement) {
+                        foreach ( $caseFileEventStatement as $eventStatementElement) {
+                            $caseFile->eventStatements()->create([
+                                'code' => (string)$eventStatementElement->code,
+                                'type' => (string)$eventStatementElement->type,
+                                'description_text' => (string)$eventStatementElement->descriptionText,
+                                'date' => isset($eventStatementElement->date) ? (new DateTime($eventStatementElement->date))->format('Y-m-d') : null,
+                                'number' => (int)$eventStatementElement->number,
+                                // ... other fields ...
+                            ]);
+                        }
                     }
                 }
                 $scannedFile->scanned = true;
@@ -128,5 +164,10 @@ class ProcessCaseFiles extends Command
 
 
         $this->info('Case files imported successfully.');
+    }
+
+    public function processDate(string|null $date): string|null
+    {
+        return ($date != '' && $date != '0000-00-00 00:00:00') ? $date : null;
     }
 }
