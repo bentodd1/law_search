@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Exception;
 use Goutte\Client;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 use Smalot\PdfParser\Parser;
 
 class CheckPdf extends Command
@@ -15,6 +16,7 @@ class CheckPdf extends Command
     public function handle()
     {
         $url = $this->argument('url');
+        $url = $this->findLinkFromRequest($url);
         $url = $this->extractPdfUrl($url);
         $searchText = "2(d) Likelihood of Confusion Refusal";
 
@@ -80,6 +82,28 @@ class CheckPdf extends Command
         }
 
         return $urls;
+    }
+
+
+    public function findLinkFromRequest(string $url ) {
+        $response = Http::withHeaders([
+            'Accept' => 'application/json',
+        ])->get($url);
+
+        if ($response->successful()) {
+            // Get the response body
+            $data = $response->body();
+            $xml = simplexml_load_string($data);
+
+          //  $namespaces = $xml->getNamespaces(true);
+
+            foreach ($xml->xpath('//a[contains(@href, "NFIN")]') as $link) {
+                $href = (string) $link['href']; // Get the href attribute of the link
+                $fullUrl = "https://tsdr.uspto.gov" . $href; // Construct the full URL
+                return $fullUrl;
+            }
+        }
+
     }
 
 }
