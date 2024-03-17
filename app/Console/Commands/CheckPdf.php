@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use Exception;
+use Goutte\Client;
 use Illuminate\Console\Command;
 use Smalot\PdfParser\Parser;
 
@@ -13,6 +15,7 @@ class CheckPdf extends Command
     public function handle()
     {
         $url = $this->argument('url');
+        $url = $this->extractPdfUrl($url);
         $searchText = "2(d) Likelihood of Confusion Refusal";
 
         try {
@@ -35,5 +38,49 @@ class CheckPdf extends Command
             $this->error("An error occurred: " . $e->getMessage());
         }
     }
+
+
+    function extractPdfUrl($pageUrl) {
+        $client = new Client();
+        $crawler = $client->request('GET', $pageUrl);
+
+        $scriptTagContent = $crawler->filter('script')->reduce(function ($node) {
+            return strpos($node->text(), 'DocsList') !== false;
+        })->text();
+        $jsonString = str_replace('var DocsList =', '', $scriptTagContent);
+
+        return $this->extractUrlsFromJson($jsonString, "Non-Final Action");
+
+    }
+
+    function extractUrlsFromJson($jsonString, $descriptionFilter = null) {
+        $urls = [];
+
+        // Decode the JSON string into an associative array
+        $decoded = json_decode($jsonString, true);
+
+        // Check if the decoding was successful
+        if ($decoded && isset($decoded['caseDocs'])) {
+            foreach ($decoded['caseDocs'] as $doc) {
+                // Check if we are filtering by description
+                if ($descriptionFilter !== null && $doc['description'] !== $descriptionFilter) {
+                    continue;
+                }
+
+                // Check if 'urlPathList' is set and is an array
+                if (isset($doc['urlPathList']) && is_array($doc['urlPathList'])) {
+                    // Add URLs to the result array
+                    foreach ($doc['urlPathList'] as $url) {
+                        return $url;
+                    }
+                }
+            }
+        } else {
+            throw new Exception("Error decoding JSON.");
+        }
+
+        return $urls;
+    }
+
 }
 

@@ -9,6 +9,7 @@
         "ext-dom": "*",
         "ext-simplexml": "*",
         "elasticsearch/elasticsearch": "^8.12",
+        "fabpot/goutte": "^4.0",
         "guzzlehttp/guzzle": "^7.8",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",

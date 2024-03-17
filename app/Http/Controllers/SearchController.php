@@ -11,7 +11,6 @@ class SearchController extends Controller
     //TODO Add vue js
     public function search(Request $request)
     {
-
         // Default page number is 1 if not provided in the request
         $cancelledPage = $request->input('cancelledPage', 1);
         $registeredPage = $request->input('registeredPage', 1);
