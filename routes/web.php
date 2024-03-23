@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CaseController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,9 @@ Route::get('/employees/{employee}', [EmployeeController::class, 'show'])->name('
 Route::get('/register', function () {
     return view('auth-register');
 });
+
+Route::get('/cases/{case}', [CaseController::class, 'show'])->name('cases.show');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

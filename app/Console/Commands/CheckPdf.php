@@ -2,29 +2,62 @@
 
 namespace App\Console\Commands;
 
+use App\Models\CaseFile;
+use DOMDocument;
 use Exception;
 use Goutte\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Smalot\PdfParser\Parser;
+use GuzzleHttp\Client as GuzzleClient;
+
+
 
 class CheckPdf extends Command
 {
-    protected $signature = 'check:pdf {url}';
+    protected $signature = 'check:pdf';
     protected $description = 'Check a PDF file for specific text.';
 
+    // TODO look at only GRNT
     public function handle()
     {
-        $url = $this->argument('url');
+        $caseFiles = CaseFile::whereNull('contains_2d')
+            ->whereHas('eventStatements', function ($query) {
+                $query->where('code', 'GNEA');
+            })
+            ->whereHas('eventStatements', function ($query) {
+                $query->where('code', 'GNRT');
+            })
+            ->get();
+
+            foreach ($caseFiles as $caseFile) {
+                $url = "https://tsdr.uspto.gov/docsview/sn{$caseFile->serial_number}";
+
+                try {
+                    $bool = $this->scanPdf($url);
+                    $caseFile->contains_2d = $bool;
+                    $caseFile->save();
+                }
+                catch(Exception $e) {
+                    $caseFileId = $caseFile->id;
+                    $this->info("Error processing caseFile $caseFileId");
+                    $this->info($e->getMessage());
+                    break;
+                }
+
+            }
+        }
+
+
+    public function scanPdf(string $url) {
+        //$url = $this->argument('url');
         $url = $this->findLinkFromRequest($url);
         $url = $this->extractPdfUrl($url);
-        $searchText = "2(d) Likelihood of Confusion Refusal";
-
-        try {
+        if (substr($url, -4) === '.pdf') {
+            $searchText = "2(d) Likelihood of Confusion Refusal";
             $pdfContent = file_get_contents($url);
             if ($pdfContent === false) {
-                $this->error("Failed to download PDF.");
-                return;
+                throw new Exception('No contents');
             }
 
             $parser = new Parser();
@@ -32,13 +65,32 @@ class CheckPdf extends Command
             $pages  = $pdf->getText();
 
             if (strpos($pages, $searchText) !== false) {
-                $this->info("Text found in the document.");
+                return true;
             } else {
-                $this->info("Text not found in the document.");
+                return false;
             }
-        } catch (\Exception $e) {
-            $this->error("An error occurred: " . $e->getMessage());
+        } else {
+            // Handle HTML content
+            $htmlContent = $this->fetchHtmlContent($url); // Fetch using Guzzle or cURL
+           return $this->processHtml($htmlContent);
         }
+
+
+    }
+
+    private function processHtml($htmlContent): bool {
+        $dom = new DOMDocument();
+        libxml_use_internal_errors(true);
+        $dom->loadHTML($htmlContent);
+        libxml_clear_errors();
+
+        $paragraphs = $dom->getElementsByTagName('p');
+        foreach ($paragraphs as $paragraph) {
+            if (strpos($paragraph->nodeValue, '2(d)') !== false) {
+                return true; // Found '2(d)' in the HTML content
+            }
+        }
+        return false; // '2(d)' not found in the HTML content
     }
 
 
@@ -50,9 +102,14 @@ class CheckPdf extends Command
             return strpos($node->text(), 'DocsList') !== false;
         })->text();
         $jsonString = str_replace('var DocsList =', '', $scriptTagContent);
-
-        return $this->extractUrlsFromJson($jsonString, "Non-Final Action");
-
+        $this->info("Doc list json string");
+        $this->info($jsonString);
+        $urls= $this->extractUrlsFromJson($jsonString, "Non-Final Action");
+        if(empty($urls)) {
+            $urls = $this->extractUrlsFromJson($jsonString, "Offc Action Outgoing");
+        }
+            $this->info("\n Url is $urls");
+        return $urls;
     }
 
     function extractUrlsFromJson($jsonString, $descriptionFilter = null) {
@@ -84,12 +141,18 @@ class CheckPdf extends Command
         return $urls;
     }
 
+    private function fetchHtmlContent($url):string {
+        $client = new GuzzleClient();
+        $response = $client->request('GET', $url);
+        return (string) $response->getBody();
+    }
+
 
     public function findLinkFromRequest(string $url ) {
         $response = Http::withHeaders([
             'Accept' => 'application/json',
         ])->get($url);
-
+        $this->info($response);
         if ($response->successful()) {
             // Get the response body
             $data = $response->body();
@@ -98,6 +161,11 @@ class CheckPdf extends Command
           //  $namespaces = $xml->getNamespaces(true);
 
             foreach ($xml->xpath('//a[contains(@href, "NFIN")]') as $link) {
+                $href = (string) $link['href']; // Get the href attribute of the link
+                $fullUrl = "https://tsdr.uspto.gov" . $href; // Construct the full URL
+                return $fullUrl;
+            }
+            foreach ($xml->xpath('//a[contains(@href, "OOA")]') as $link) {
                 $href = (string) $link['href']; // Get the href attribute of the link
                 $fullUrl = "https://tsdr.uspto.gov" . $href; // Construct the full URL
                 return $fullUrl;

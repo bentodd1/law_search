@@ -38,6 +38,7 @@ class ProcessCaseFiles extends Command
 
                 $xml = simplexml_load_file($filePath);
                 foreach ($xml->{'application-information'}->{'file-segments'}->{'action-keys'}->{'case-file'} as $caseFileElement) {
+
                     $caseFile = CaseFile::create([
                         'serial_number' => (string)$caseFileElement->{'serial-number'},
                         'registration_number' => (string)$caseFileElement->{'registration-number'},

@@ -13,6 +13,7 @@ class CaseFile extends Model
         'serial_number',
         'registration_number',
         'transaction_date',
+        'contains_2d'
     ];
 
     public function header()

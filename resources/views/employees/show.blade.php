@@ -8,11 +8,14 @@
 
             <h2 class="text-xl font-semibold mb-2">Associated Cases</h2>
             <ul>
-                @forelse ($cases as $case)
-                    <li class="p-2 border-b border-gray-200">{{ $case->mark_identification }} - {{ $case->filing_date }}</li>
-                @empty
-                    <li class="p-2">No associated cases found.</li>
-                @endforelse
+                @foreach ($cases as $case)
+                    <li class="p-2 border-b border-gray-200">
+                        <!-- Replace 'cases.show' with the actual route name and $case->id with the case's identifier -->
+                        <a href="{{ route('cases.show', $case->id) }}" class="text-blue-600 hover:text-blue-800">
+                            {{ $case->mark_identification }} - {{ $case->filing_date }}
+                        </a>
+                    </li>
+                @endforeach
             </ul>
         </div>
     </div>
