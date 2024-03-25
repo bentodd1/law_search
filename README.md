@@ -69,3 +69,5 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 Use Laravel Scout and add to your env
 SCOUT_DRIVER=database
 php artisan scout:import "App\Models\Employee"
+
+https://www.uspto.gov/sites/default/files/products/applications-documentation.pdf

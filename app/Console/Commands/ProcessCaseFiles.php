@@ -20,7 +20,7 @@ class ProcessCaseFiles extends Command
 
     public function handle()
     {
-        $storagePath = storage_path('app/xml_files');
+        $storagePath = storage_path('../xml_files');
         //  $directory = $this->argument('directory');
         $files = File::allFiles($storagePath);
 
