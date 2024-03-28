@@ -71,3 +71,5 @@ SCOUT_DRIVER=database
 php artisan scout:import "App\Models\Employee"
 
 https://www.uspto.gov/sites/default/files/products/applications-documentation.pdf
+
+ssh -i ~/.ssh/monogram forge@18.234.200.209
