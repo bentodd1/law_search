@@ -24,6 +24,9 @@ Route::get('/search', function () {
     return view('search');
 })->middleware(['auth', 'verified']);
 
+Route::get('/search', [\App\Http\Controllers\SearchController::class, 'search'])->name('search');
+
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
