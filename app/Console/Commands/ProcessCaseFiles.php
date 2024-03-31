@@ -91,7 +91,7 @@ class ProcessCaseFiles extends Command
                                     'code' => (string)$usCodeElement,
                                     // ... other fields for USCode ...
                                 ]);
-                                $classification->americanCodes()->syncWithoutDetaching([$classification->id, $usCode->id]);
+                                $classification->americanCodes()->syncWithoutDetaching([$usCode->id]);
                             }
 
                             // Associating Classification with CaseFile
