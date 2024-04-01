@@ -9,5 +9,5 @@ class ScannedFile extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['filename'];
+    protected $fillable = ['filename', 'last_processed_element', 'scanned'];
 }

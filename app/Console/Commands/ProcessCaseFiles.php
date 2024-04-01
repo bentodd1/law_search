@@ -37,10 +37,20 @@ class ProcessCaseFiles extends Command
                 }
 
                 $xml = simplexml_load_file($filePath);
+                $startProcessingFrom = $scannedFile->last_processed_element;
+                $foundStartPosition = is_null($startProcessingFrom);
+
                 foreach ($xml->{'application-information'}->{'file-segments'}->{'action-keys'}->{'case-file'} as $caseFileElement) {
+                    $currentSerialNumber = (string)$caseFileElement->{'serial-number'};
+                    if (!$foundStartPosition) {
+                        if ($currentSerialNumber == $startProcessingFrom) {
+                            $foundStartPosition = true;
+                        }
+                        continue; // Skip until we find the start position
+                    }
 
                     $caseFile = CaseFile::create([
-                        'serial_number' => (string)$caseFileElement->{'serial-number'},
+                        'serial_number' => $currentSerialNumber,
                         'registration_number' => (string)$caseFileElement->{'registration-number'},
                         'transaction_date' =>  DateTime::createFromFormat('Ymd', (string)$caseFileElement->{'transaction-date'})->format('Y-m-d')
 
@@ -157,6 +167,8 @@ class ProcessCaseFiles extends Command
                             ]);
                         }
                     }
+                    $scannedFile->last_processed_element = $currentSerialNumber;
+                    $scannedFile->save();
                 }
                 $scannedFile->scanned = true;
                 $scannedFile->save();
