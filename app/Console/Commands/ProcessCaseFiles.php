@@ -17,6 +17,7 @@ class ProcessCaseFiles extends Command
 {
     protected $signature = 'process:casefile';
     protected $description = 'Imports case files from an XML file';
+    const MAX_LENGTH = 50000;
 
     public function handle()
     {
@@ -81,9 +82,12 @@ class ProcessCaseFiles extends Command
                     $statements = $caseFileElement->{'case-file-statements'}->{'case-file-statement'};
                     if ($statements) {
                         foreach ($statements as $statementElement) {
+                            $text = (string)$statementElement->text
+                            $text = substr($text, 0, self::MAX_LENGTH);
+
                             $caseFile->statements()->create([
                                 'type_code' => (string)$statementElement->{'type-code'},
-                                'text' => (string)$statementElement->text,
+                                'text' => $text,
                                 // ... other fields ...
                             ]);
                         }
