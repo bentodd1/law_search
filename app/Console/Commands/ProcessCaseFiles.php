@@ -82,7 +82,7 @@ class ProcessCaseFiles extends Command
                     $statements = $caseFileElement->{'case-file-statements'}->{'case-file-statement'};
                     if ($statements) {
                         foreach ($statements as $statementElement) {
-                            $text = (string)$statementElement->text
+                            $text = (string)$statementElement->text;
                             $text = substr($text, 0, self::MAX_LENGTH);
 
                             $caseFile->statements()->create([
