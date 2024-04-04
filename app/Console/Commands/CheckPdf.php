@@ -22,9 +22,9 @@ class CheckPdf extends Command
     public function handle()
     {
         $caseFiles = CaseFile::whereNull('contains_2d')
-            ->whereHas('eventStatements', function ($query) {
-                $query->where('code', 'GNEA');
-            })
+//            ->whereHas('eventStatements', function ($query) {
+//                $query->where('code', 'GNEA');
+//            })
             ->whereHas('eventStatements', function ($query) {
                 $query->where('code', 'GNRT');
             })
